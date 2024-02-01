@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using SignalRServer.Models;
 
 namespace SignalRServer.Hubs
 {
@@ -10,7 +11,7 @@ namespace SignalRServer.Hubs
             return base.OnConnectedAsync();
         }
 
-        [Authorize(AuthenticationSchemes = "World")]
+        [Authorize(AuthenticationSchemes = AuthSchemes.WORLD_SCHEME)]
         public async Task SendMessage(string user, string message)
         {
             await Clients.All.SendAsync("ReceiveMessage", user, message);

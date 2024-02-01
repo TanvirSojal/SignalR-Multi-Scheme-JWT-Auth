@@ -13,8 +13,7 @@ namespace SignalRServer.Handlers
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-           
-            return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(new System.Security.Claims.ClaimsPrincipal(), "yes")));
+            return base.HandleAuthenticateAsync();
         }
     }
 }

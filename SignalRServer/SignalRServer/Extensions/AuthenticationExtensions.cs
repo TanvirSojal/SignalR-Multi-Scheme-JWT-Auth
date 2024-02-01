@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using SignalRServer.Events;
 using SignalRServer.Handlers;
+using SignalRServer.Models;
 
 namespace SignalRServer.Extensions
 {
@@ -11,46 +11,37 @@ namespace SignalRServer.Extensions
         {
             // Reference: https://albertromkes.com/2022/12/09/support-multiple-jwt-authorities-in-a-net-core-application/
 
-            var combinedScheme = "HELLO_OR_WORLD";
-
-            var helloScheme = "Hello";
-            var worldScheme = "World";
+            var secretKey = "qwertyuiopasdfghjklzxcvbnm123456"; // used in both Hello and World
 
             services
-                .AddAuthentication(combinedScheme) // instead of setting any one scheme as default, we create a combined scheme
-                .AddScheme<JwtBearerOptions, HelloJwtBearerHandler>(helloScheme, options =>
+                .AddAuthentication(AuthSchemes.HELLO_OR_WORLD_SCHEME) // instead of setting any one scheme as default, we create a combined scheme
+                .AddScheme<JwtBearerOptions, HelloJwtBearerHandler>(AuthSchemes.HELLO_SCHEME, options =>
                 {
-                    options.Authority = "hello_authority";
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes("qwertyuiopasdfghjklzxcvbnm123456")),
+                        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(secretKey)),
 
                         ValidateIssuer = false,
                         ValidateLifetime = false,
                         ValidateAudience = false,
                     };
-
-                    options.Events = new CustomJwtBearerEvents("Hello");
                 })
-                .AddScheme<JwtBearerOptions, WorldJwtBearerHandler>(worldScheme, options =>
+                .AddScheme<JwtBearerOptions, WorldJwtBearerHandler>(AuthSchemes.WORLD_SCHEME, options =>
                 {
-                    options.Authority = "world_authority";
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes("qwertyuiopasdfghjklzxcvbnm123456")),
+                        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.ASCII.GetBytes(secretKey)),
 
                         ValidateIssuer = false,
                         ValidateLifetime = false,
                         ValidateAudience = false,
                     };
-
-                    options.Events = new CustomJwtBearerEvents("World");
                 })
-                .AddPolicyScheme(combinedScheme, combinedScheme, options =>
+                .AddPolicyScheme(AuthSchemes.HELLO_OR_WORLD_SCHEME, AuthSchemes.HELLO_OR_WORLD_SCHEME, options =>
                 {
-                    var fallbackScheme = "World";
+                    var fallbackScheme = AuthSchemes.WORLD_SCHEME;
 
                     options.ForwardDefaultSelector = context =>
                     {
